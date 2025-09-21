@@ -1,5 +1,5 @@
 # Loan-Approval-Prediction.github.io
-
+https://deepdey02.github.io/Loan-Approval-Prediction.github.io/
  Loan Approval Prediction System | Machine Learning + Flask Web App Deployment 
 
 In this video, we build and deploy a Loan Approval Prediction System using Python , Flask , and Machine Learning . Watch as we break down the backend code, load the trained model with joblib, handle real user inputs with pandas, encode categorical features, and serve predictions through a sleek, professional web interface 
