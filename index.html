@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loan Approval Prediction</title>
+    <!-- Google Font: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Feather Icons for subtle iconography -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+      :root {
+  --primary-color: #f97316;        /* Orange */
+  --primary-hover-color: #ea580c;  /* Darker Orange */
+  --success-color: #10b981;        /* Emerald Green */
+  --error-color: #dc2626;          /* Crimson Red */
+  --dark-text-color: #f1f5f9;      /* Near white */
+  --light-text-color: #cbd5e1;     /* Soft gray */
+  --glass-bg-color: rgba(17, 24, 39, 0.55); /* Deep charcoal glass */
+  --border-color: rgba(255, 255, 255, 0.2); /* Subtle white border */
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --border-radius: 16px;
+  --neon-glow-color: #facc15;      /* Neon Yellow glow */
+}
+
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #0f172a;
+        background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px 20px;
+        position: relative;
+      }
+
+      /* Animated background shapes */
+      body::before,
+      body::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(
+          45deg,
+          rgba(124, 58, 237, 0.1),
+          rgba(124, 58, 237, 0.2)
+        );
+        filter: blur(80px); /* Increased blur for softer glow */
+        animation: float 15s infinite ease-in-out;
+        z-index: -1;
+      }
+
+      body::before {
+        width: 350px;
+        height: 350px;
+        top: 10%;
+        left: 15%;
+      }
+
+      body::after {
+        width: 300px;
+        height: 300px;
+        bottom: 10%;
+        right: 15%;
+        animation-delay: -7s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-30px) translateX(20px);
+        }
+      }
+
+      .container {
+        position: relative;
+        z-index: 10;
+        background: var(--glass-bg-color);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid var(--border-color);
+        padding: 40px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        max-width: 700px;
+        width: 100%;
+        text-align: center;
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .header {
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-weight: 700;
+        font-size: 2.2rem; /* Slightly larger for emphasis */
+        margin-bottom: 8px;
+        color: var(--neon-glow-color); /* Applied neon color */
+        text-shadow: /* Added multi-layer text-shadow for neon glow */ 0 0 5px
+            var(--neon-glow-color),
+          0 0 10px var(--neon-glow-color), 0 0 20px var(--neon-glow-color),
+          0 0 40px var(--primary-color), 0 0 70px var(--primary-color);
+      }
+
+      .header p {
+        color: var(--light-text-color);
+        font-size: 1rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .form-group {
+        text-align: left;
+        position: relative;
+      }
+
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-group label {
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--dark-text-color);
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .form-group label i {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2px;
+        color: var(--light-text-color);
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        font-size: 16px;
+        font-family: "Poppins", sans-serif;
+        color: var(--dark-text-color);
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      /* Specific styles for select to handle custom arrow */
+      .form-group select {
+        -webkit-appearance: none;
+        appearance: none;
+        padding-right: 40px; /* Make space for arrow */
+      }
+
+      /* Custom dropdown arrow using an SVG */
+      .form-group:has(select)::after {
+        content: " ";
+        position: absolute;
+        right: 15px;
+        top: calc(50% + 10px); /* Position correctly below label */
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2300d4ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center;
+        pointer-events: none;
+      }
+
+      /* Style for the dropdown options */
+      .form-group select option {
+        background: #1e293b;
+        color: var(--dark-text-color);
+      }
+
+      .form-group input::placeholder {
+        color: var(--light-text-color);
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.4);
+      }
+
+      #predictBtn {
+        background: linear-gradient(45deg, #0950ad, var(--neon-glow-color));
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: 100%;
+        grid-column: 1 / -1;
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      }
+
+      #predictBtn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 25px rgba(0, 212, 255, 0.3);
+      }
+
+      #predictBtn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 1s ease-in-out infinite;
+        display: none; /* Hidden by default */
+      }
+
+      #predictBtn.loading .spinner {
+        display: block;
+      }
+      #predictBtn.loading .btn-text {
+        display: none;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+  
+      #result {
+        margin-top: 30px;
+        font-size: 1.15rem;
+        font-weight: 600;
+        padding: 15px 20px;
+        border-radius: 10px;
+        display: none;
+        animation: slideIn 0.5s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      #result.success {
+        display: block;
+        color: #86efac; /* Lighter green for dark bg */
+        background-color: rgba(34, 197, 94, 0.15);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+      }
+
+      #result.error {
+        display: block;
+        color: #fca5a5; /* Lighter red for dark bg */
+        background-color: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .container {
+          padding: 25px;
+        }
+        .header h1 {
+          font-size: 1.75rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Loan Insight</h1>
+        <p>Let's predict your loan approval status.</p>
+      </div>
+
+      <form id="predictionForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="person_age"><i data-feather="user"></i>Age</label>
+            <input
+              id="person_age"
+              type="number"
+              name="person_age"
+              placeholder="e.g., 25"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="person_income"
+              ><i data-feather="dollar-sign"></i>Annual Income</label
+            >
+            <input
+              id="person_income"
+              type="number"
+              name="person_income"
+              placeholder="e.g., 50000"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="person_home_ownership"
+              ><i data-feather="home"></i>Home Ownership</label
+            >
+            <select id="person_home_ownership" name="person_home_ownership">
+              <option value="RENT">Rent</option>
+              <option value="MORTGAGE">Mortgage</option>
+              <option value="OWN">Own</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="person_emp_length"
+              ><i data-feather="briefcase"></i>Employment (Years)</label
+            >
+            <input
+              id="person_emp_length"
+              type="number"
+              name="person_emp_length"
+              placeholder="e.g., 5"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="loan_intent"
+              ><i data-feather="target"></i>Loan Intent</label
+            >
+            <select id="loan_intent" name="loan_intent">
+              <option value="EDUCATION">Education</option>
+              <option value="MEDICAL">Medical</option>
+              <option value="PERSONAL">Personal</option>
+              <option value="VENTURE">Venture</option>
+              <option value="DEBTCONSOLIDATION">Debt Consolidation</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="loan_grade"
+              ><i data-feather="award"></i>Loan Grade</label
+            >
+            <select id="loan_grade" name="loan_grade">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="loan_amnt"
+              ><i data-feather="credit-card"></i>Loan Amount ($)</label
+            >
+            <input
+              id="loan_amnt"
+              type="number"
+              name="loan_amnt"
+              placeholder="e.g., 10000"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="loan_int_rate"
+              ><i data-feather="percent"></i>Interest Rate</label
+            >
+            <input
+              id="loan_int_rate"
+              type="number"
+              step="0.01"
+              name="loan_int_rate"
+              placeholder="e.g., 11.5"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="loan_percent_income"
+              ><i data-feather="pie-chart"></i>Loan to Income Ratio</label
+            >
+            <input
+              id="loan_percent_income"
+              type="number"
+              step="0.01"
+              name="loan_percent_income"
+              placeholder="e.g., 0.20"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="cb_person_cred_hist_length"
+              ><i data-feather="clock"></i>Credit History (Years)</label
+            >
+            <input
+              id="cb_person_cred_hist_length"
+              type="number"
+              name="cb_person_cred_hist_length"
+              placeholder="e.g., 4"
+              required
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="cb_person_default_on_file"
+              ><i data-feather="alert-triangle"></i>Has Prior Default</label
+            >
+            <select
+              id="cb_person_default_on_file"
+              name="cb_person_default_on_file"
+            >
+              <option value="N">No</option>
+              <option value="Y">Yes</option>
+            </select>
+          </div>
+
+          <button type="submit" id="predictBtn" class="full-width">
+            <span class="btn-text">Predict Approval</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+      </form>
+
+      <div id="result" role="alert"></div>
+    </div>
+
+    <script>
+      // Render Feather Icons
+      feather.replace();
+
+      document
+        .getElementById("predictionForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const predictBtn = document.getElementById("predictBtn");
+          const resultDiv = document.getElementById("result");
+          const formData = new FormData(this);
+
+          predictBtn.disabled = true;
+          predictBtn.classList.add("loading");
+          resultDiv.style.display = "none";
+          resultDiv.className = "";
+
+          try {
+            // Mock API call for demonstration purposes
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            const loanAmnt = parseFloat(formData.get("loan_amnt"));
+            const income = parseFloat(formData.get("person_income"));
+            let data;
+
+            if (isNaN(loanAmnt) || isNaN(income) || loanAmnt > income * 0.5) {
+              data = { prediction: "Loan Not Approved ❌" };
+            } else {
+              data = { prediction: "Loan Approved ✅" };
+            }
+
+            if (data.prediction) {
+              resultDiv.innerText = data.prediction;
+              resultDiv.classList.add(
+                data.prediction.includes("Approved") ? "success" : "error"
+              );
+            } else if (data.error) {
+              resultDiv.innerText = "Error: " + data.error;
+              resultDiv.classList.add("error");
+            }
+          } catch (error) {
+            resultDiv.innerText =
+              "An unexpected network error occurred. Please try again.";
+            resultDiv.classList.add("error");
+          } finally {
+            predictBtn.disabled = false;
+            predictBtn.classList.remove("loading");
+            resultDiv.style.display = "block";
+          }
+        });
+    </script>
+  </body>
+</html>
